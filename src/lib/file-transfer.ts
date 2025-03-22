@@ -120,7 +120,7 @@ const uploadFileChunk = async ({
     });
 
     // Use our server-side proxy instead of direct S3 upload
-    await api('/api/v1/upload-proxy', {
+    await api('/upload-proxy', {
       method: 'POST'
     }, {
       key: fileName,
