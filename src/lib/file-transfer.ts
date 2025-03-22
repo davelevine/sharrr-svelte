@@ -108,31 +108,33 @@ const uploadFileChunk = async ({
   progressCallback
 }: UploadFileChunkParams): Promise<void> => {
   progressCallback(0)
-  // Get presigned S3 post url
-  const { url, fields } = await api<PresignedPostResponse>(`/files?file=${fileName}`)
 
-  // Prepare form data
-  const formData = new FormData()
-  Object.entries(fields).forEach(([key, value]) => {
-    if (typeof value !== 'string') {
-      return
-    }
-    formData.append(key, value)
-  })
-  formData.append('Content-type', 'application/octet-stream') // Setting content type a binary file.
-  formData.append('file', chunk)
+  try {
+    // Convert chunk to base64 for JSON transport
+    const reader = new FileReader();
+    const chunkAsBase64 = await new Promise<string>((resolve) => {
+      reader.onload = () => resolve(
+        (reader.result as string).split(',')[1]
+      );
+      reader.readAsDataURL(chunk);
+    });
 
-  // Post file to S3
-  // @todo Unclear why we have to append bucket here.
-  // Using axios b/c of built-in progress callback
-  await axios.request({
-    method: 'POST',
-    url: `${url}/${bucket}`,
-    data: formData,
-    onUploadProgress: (p) => {
-      progressCallback(p.loaded / (p.total || size))
-    }
-  })
+    // Use our server-side proxy instead of direct S3 upload
+    await api('/api/v1/upload-proxy', {
+      method: 'POST'
+    }, {
+      key: fileName,
+      content: chunkAsBase64,
+      contentType: 'application/octet-stream',
+      bucket
+    });
+
+    // Simulate progress since we can't track it with the proxy
+    progressCallback(1);
+  } catch (error) {
+    console.error('Upload error:', error);
+    throw new Error('Failed to upload file chunk');
+  }
 }
 
 const chunkDownload = async ({
