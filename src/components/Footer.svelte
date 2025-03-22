@@ -10,7 +10,7 @@
     >
     <!-- Use <a class="underline hover:text-primary" href="https://scrt.link">scrt.link</a> for greater needs. -->
     &bull;
-    <a class="underline hover:text-primary" href="https://github.com/stophecom/sharrr-svelte">
+    <a class="underline hover:text-primary" href="https://github.com/davelevine/sharrr-svelte">
       Github</a
     >
   </small>

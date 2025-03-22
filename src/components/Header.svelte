@@ -34,7 +34,7 @@
       </nav>
 
       <div class="flex justify-end">
-        <a href="https://github.com/stophecom/sharrr-svelte">
+        <a href="https://github.com/davelevine/sharrr-svelte">
           <img class="w-6 h-6 sm:w-7 sm:h-7" src={github} alt="GitHub" />
           <span class="sr-only">GitHub</span>
         </a>

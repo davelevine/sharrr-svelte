@@ -18,8 +18,7 @@
     { item: `Up to&nbsp;<strong>${prettyBytes(MAX_FILE_SIZE)}</strong>&nbsp;files` },
     { item: `Zero knowledge encryption` },
     { item: `One-time download` },
-    { item: `Free and open source` },
-    { item: `Stored in Switzerland 🇨🇭` }
+    { item: `Free and open source` }
   ]
 </script>
 

@@ -4,11 +4,9 @@
 
 Transfer files (of virtually unlimited size) asynchronously and in the most secure way possible.
 
-Learn more about the [technical implementation](https://sharrr.com/about). See how [sharrr compares](https://github.com/stophecom/sharrr-svelte/blob/main/src/routes/about/comparison.md) to other services.
+Learn more about the [technical implementation](https://share.levine.io/about). See how [sharrr compares](https://github.com/davelevine/sharrr-svelte/blob/main/src/routes/about/comparison.md) to other services.
 
-Website: [www.sharrr.com](https://sharrr.com)
-
-Help keep this project running: [Make a donation](https://donate.stripe.com/28oeV1gKP3bv4b6144)
+Website: [share.levine.io](https://share.levine.io)
 
 ## Developing
 

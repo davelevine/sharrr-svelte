@@ -2,11 +2,9 @@
 
 This project is **proof-of-concept** on how to transfer large files over the internet asynchronously and in the most secure way possible, using **zero-knowledge encryption**.
 
-All code is [open source on Github](https://github.com/stophecom/sharrr-svelte).
+All code is [open source on Github](https://github.com/davelevine/sharrr-svelte).
 
-[Read the background story](https://blog.stophe.com/how-to-securely-share-a-file) about this project in my blog.
-
-Get in touch [Bluesky](https://bsky.app/profile/stophe.com) or [Mastodon](https://mastodon.social/@stophecom).
+[Read the background story](https://blog.stophe.com/how-to-securely-share-a-file).
 
 ## Features
 
@@ -15,7 +13,6 @@ Get in touch [Bluesky](https://bsky.app/profile/stophe.com) or [Mastodon](https:
 - Support for extra large files (_Technically_ there is no file size limit)
 - One-time download link
 - 7 day retention period (Download link expires and files are being deleted afterwards.)
-- Files are stored in Switzerland
 
 ### Fair use
 
