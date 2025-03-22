@@ -1,4 +1,5 @@
-import { createPresignedPost } from '@aws-sdk/s3-presigned-post'
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
+import { PutObjectCommand } from '@aws-sdk/client-s3'
 import { error, json } from '@sveltejs/kit'
 import type { RequestEvent } from './$types'
 
@@ -15,21 +16,27 @@ export const GET = async ({ url }: RequestEvent) => {
   }
 
   try {
-    // For Backblaze B2, we need to be careful with how we structure the presigned post
-    const post = await createPresignedPost(getS3Client(), {
+    // Use request-presigner instead of presigned-post for better B2 compatibility
+    const client = getS3Client()
+    const command = new PutObjectCommand({
       Bucket,
-      Key: key, // This is the correct parameter to use
-      Fields: {
-        acl: 'bucket-owner-full-control'
-        // Don't include key here as it's causing duplication
-      },
-      Expires: 3 * 60 * 60, // seconds -> 3h
-      Conditions: [
-        { 'Content-Type': 'application/octet-stream' }
-      ]
+      Key: key,
+      ContentType: 'application/octet-stream',
+      ACL: 'public-read' // Make sure file is publicly readable
     })
 
-    return json(post)
+    const presignedUrl = await getSignedUrl(client, command, {
+      expiresIn: 3 * 60 * 60 // 3 hours
+    })
+
+    // Return a format compatible with the existing frontend code
+    return json({
+      url: presignedUrl,
+      fields: {}, // Empty fields as we're not using multipart form uploads
+      // Include bucket and key so frontend can construct final URL if needed
+      bucket: Bucket,
+      key: key
+    })
   } catch (err) {
     console.error(err)
     error(400, 'Something went wrong.');
