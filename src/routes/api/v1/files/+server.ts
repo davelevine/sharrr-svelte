@@ -14,18 +14,19 @@ export const GET = async ({ url }: RequestEvent) => {
     return error(400, 'File parameter missing.')
   }
 
-  const Conditions = [{ 'Content-Type': 'application/octet-stream' }]
-
   try {
+    // For Backblaze B2, we need to be careful with how we structure the presigned post
     const post = await createPresignedPost(getS3Client(), {
       Bucket,
+      Key: key, // This is the correct parameter to use
       Fields: {
-        acl: 'bucket-owner-full-control',
-        key: key
+        acl: 'bucket-owner-full-control'
+        // Don't include key here as it's causing duplication
       },
-      Key: key,
-      Expires: 3 * 60 * 60, // seconds -> 3h (For really big files)
-      Conditions
+      Expires: 3 * 60 * 60, // seconds -> 3h
+      Conditions: [
+        { 'Content-Type': 'application/octet-stream' }
+      ]
     })
 
     return json(post)
