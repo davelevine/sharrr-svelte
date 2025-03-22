@@ -53,7 +53,7 @@
 
     // We encode each generated secret to make sure it doesn't contain '/' which we use to separate the parts.
     const encodedHashParts = [alias, iv, masterKey].map((element) => encodeURIComponent(element))
-    link = `${baseUrl}/#/s/${encodedHashParts.join('/')}`
+    link = `${baseUrl}/s#${encodedHashParts.join('/')}`
 
     const chunks = await handleFileEncryptionAndUpload({
       file,
