@@ -27,7 +27,7 @@ jobs:
         run: npx playwright test
         env:
           PUBLIC_ENV: production
-          VERCEL_URL: https://sharrr.com
+          VERCEL_URL: https://share.levine.io
           DEBUG: pw:api
       - name: Create folder for artifacts
         if: always()

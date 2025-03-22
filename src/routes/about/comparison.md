@@ -4,7 +4,7 @@ Here is a non complete competitor analysis:
 
 |                                                                | End-to-end encryption | Open source | Max file size (free) | Retention |
 | -------------------------------------------------------------- | --------------------- | ----------- | -------------------- | --------- |
-| sharrr.com                                                     | ✅                    | ✅          | 100 GB               | 7d        |
+| share.levine.io                                                     | ✅                    | ✅          | 100 GB               | 7d        |
 | wormhole.app                                                   | ✅                    | ✅          | 5/10 GB\*            | 1d        |
 | [FF Send (Forks)](https://github.com/timvisee/send-instances/) | ✅                    | ✅          | 30 GB\*\*            | 7d        |
 | transfernow.net                                                | ✅                    | ❌          | 5 GB                 | 7d        |
