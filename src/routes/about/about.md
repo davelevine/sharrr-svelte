@@ -4,7 +4,7 @@ This project is **proof-of-concept** on how to transfer large files over the int
 
 All code is [open source on Github](https://github.com/davelevine/sharrr-svelte).
 
-[Read the background story](https://blog.stophe.com/how-to-securely-share-a-file).
+[Read the background story](https://blog.stophe.com/how-to-securely-share-a-file) about this project.
 
 ## Features
 

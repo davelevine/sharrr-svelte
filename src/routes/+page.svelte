@@ -18,13 +18,14 @@
     { item: `Up to&nbsp;<strong>${prettyBytes(MAX_FILE_SIZE)}</strong>&nbsp;files` },
     { item: `Zero knowledge encryption` },
     { item: `One-time download` },
+    { item: `Self-destructing storage 🔥` },
     { item: `Free and open source` }
   ]
 </script>
 
 <Page
   title={'Pretty secure file transfer.'}
-  subtitle={'End-to-end encrypted. Ephemeral. Open source.'}
+  subtitle={'End-to-end encrypted. Open source.'}
 >
   <div class="mx-auto max-w-xl">
     <FileUpload baseUrl={data.baseUrl} />
