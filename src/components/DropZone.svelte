@@ -1,6 +1,5 @@
 <script lang="ts">
   import MdFileUpload from 'svelte-icons/md/MdFileUpload.svelte'
-  import gif from '$lib/images/snoop.webp'
 
   import { PUBLIC_ENV } from '$env/static/public'
   import Error from '$components/Error.svelte'
@@ -121,7 +120,6 @@
     class="fixed top-0 left-0 w-full h-full pointer-events-none rounded-lg flex items-end justify-center bg-black opacity-0"
     style={isOver ? 'opacity: 1;' : ''}
   >
-    <img class="absolute object-cover w-full h-full" alt="Snoop Dogg" src={gif} />
     <div
       class="w-full text-white text-center absolute text-6xl md:text-8xl p-12 pb-16 uppercase font-bold bg-gradient-to-b from-transparent to-black"
     >
