@@ -37,7 +37,7 @@ Similar to the storage, the database only contains encrypted data. There is no w
 
 The following schema shows a simplified version of the implementation:
 
-![Concept](https://share.levine.io/images/about/about-overview.jpg)
+![Concept](../images/about/about-overview.jpg)
 
 It is worth noting here that the alias and master key **never leave the browser**. Both strings will be added to the fragment identifier of the download link. This commonly referred to as the **#hash** or **anchor** part of the URL is never sent to the server. (You can check yourself in your browser's devtools: When you access a link, this information will not be sent as part of the request.)
 
@@ -45,13 +45,13 @@ It is worth noting here that the alias and master key **never leave the browser*
 
 Encrypting the file is the easier part: First, a file is split into smaller chunks. Those chunks then get encrypted separately and stored on S3. A reference to each chunk, together with a signature and a public key is afterwards stored in the database.
 
-![Encryption](https://share.levine.io/images/about/about-encryption.jpg)
+![Encryption](../images/about/about-encryption.jpg)
 
 #### Download (Decryption)
 
 The download and decryption is the tricky part. Not only do we need to make sure the client is allowed to request a certain file (solved with a cryptographic signature, see blue box), but also it is not possible to stream files directly into the download folder. We, therefore, need a [service worker](https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API) in between. If you want to learn more about how this works, I recommend [this video](https://www.youtube.com/watch?v=SdePc87Ffik) or this [blog post](https://proton.me/blog/proton-drive-web-encryption-technique).
 
-![Decryption](https://share.levine.io/images/about/about-decryption.jpg)
+![Decryption](../images/about/about-decryption.jpg)
 
 ## Cryptography
 
