@@ -12,7 +12,7 @@ All code is [open source on Github](https://github.com/davelevine/sharrr-svelte)
 - Parallel upload
 - Support for extra large files (_Technically_ there is no file size limit)
 - One-time download link
-- 7 day retention period (Download link expires and files are being deleted afterwards.)
+- 7 day retention period (Download link expires and files are automatically deleted.)
 
 ### Fair use
 

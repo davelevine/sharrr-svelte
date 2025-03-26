@@ -4,6 +4,9 @@
   export let progress: number = 0 // 0 - 100
 
   $: label = progress === 100 ? 'Done' : label
+
+  // Format percentage based on value - show decimals during upload, whole number when complete
+  $: formattedProgress = progress === 100 ? "100%" : progress.toFixed(2) + "%"
 </script>
 
 <div class="flex justify-between mb-1">
@@ -14,7 +17,7 @@
     {/if}
   </div>
   <span class="flex-shrink-0 ml-2 w-14 text-right text-sm font-medium text-primary"
-    >{Math.round(progress)}%</span
+    >{formattedProgress}</span
   >
 </div>
 <div class="w-full bg-gray-300 rounded-full h-2.5">
