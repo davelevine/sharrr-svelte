@@ -7,16 +7,16 @@
 </script>
 
 <div class="flex justify-between mb-1">
-  <div class="flex flex-wrap items-baseline text-base dark:text-white max-w-full truncate">
-    <span class="font-medium mr-2">{label}</span>
+  <div class="flex flex-wrap items-baseline text-base max-w-full truncate">
+    <span class="font-medium mr-2 text-gray-900">{label}</span>
     {#if fileName}
-      <div class="font-normal text-sm truncate text-gray-700">{fileName}</div>
+      <div class="font-normal text-sm truncate text-gray-900">{fileName}</div>
     {/if}
   </div>
-  <span class="flex-shrink-0 ml-2 w-14 text-right text-sm font-medium text-primary dark:text-white"
-    >{progress.toFixed(2)}%</span
+  <span class="flex-shrink-0 ml-2 w-14 text-right text-sm font-medium text-primary"
+    >{Math.round(progress)}%</span
   >
 </div>
-<div class="w-full bg-gray-300 rounded-full h-2.5 dark:bg-gray-700">
+<div class="w-full bg-gray-300 rounded-full h-2.5">
   <div class="bg-primary h-2.5 rounded-full" style="min-width: 3%; width: {progress}%" />
 </div>
