@@ -103,13 +103,60 @@ type UploadFileChunkParams = {
 const uploadFileChunk = async ({
   bucket,
   chunk,
-  size,
   fileName,
+  size,
   progressCallback
 }: UploadFileChunkParams): Promise<void> => {
-  progressCallback(0)
+  progressCallback(0);
 
+  // Try direct upload first
   try {
+    console.log('Attempting direct upload to Storj for file:', fileName);
+
+    // Get presigned URL from your server
+    const presignedResponse = await fetch('/api/v1/presigned-url', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        key: fileName,
+        contentType: 'application/octet-stream',
+        bucket
+      })
+    });
+
+    if (!presignedResponse.ok) {
+      const errorText = await presignedResponse.text();
+      throw new Error(`Failed to get presigned URL: ${presignedResponse.status} ${errorText}`);
+    }
+
+    const { url } = await presignedResponse.json();
+    console.log('Got presigned URL for Storj upload');
+
+    // Upload directly to Storj using fetch for better error handling
+    const uploadResponse = await fetch(url, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/octet-stream'
+      },
+      body: chunk
+    });
+
+    if (!uploadResponse.ok) {
+      const errorText = await uploadResponse.text();
+      throw new Error(`Upload to Storj failed with status ${uploadResponse.status}: ${errorText}`);
+    }
+
+    console.log('Direct upload to Storj successful!');
+    progressCallback(1);
+    return; // Success!
+  } catch (directUploadError) {
+    console.warn('Direct upload to Storj failed, falling back to proxy:', directUploadError);
+  }
+
+  // Fall back to proxy upload
+  try {
+    console.log('Using proxy upload for file:', fileName);
+
     // Convert chunk to base64 for JSON transport
     const reader = new FileReader();
     const chunkAsBase64 = await new Promise<string>((resolve) => {
@@ -119,7 +166,7 @@ const uploadFileChunk = async ({
       reader.readAsDataURL(chunk);
     });
 
-    // Use our server-side proxy instead of direct S3 upload
+    // Use server-side proxy
     await api('/upload-proxy', {
       method: 'POST'
     }, {
@@ -129,11 +176,11 @@ const uploadFileChunk = async ({
       bucket
     });
 
-    // Simulate progress since we can't track it with the proxy
+    console.log('Proxy upload successful!');
     progressCallback(1);
-  } catch (error) {
-    console.error('Upload error:', error);
-    throw new Error('Failed to upload file chunk');
+  } catch (proxyError) {
+    console.error('Proxy upload failed:', proxyError);
+    throw new Error(`Failed to upload file chunk through proxy: ${proxyError.message}`);
   }
 }
 

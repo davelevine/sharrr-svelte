@@ -38,18 +38,31 @@ export const POST = async ({ params, request }: RequestEvent) => {
     error(400, `Invalid signature`);
   }
 
-  const bucketParams = {
-    Bucket,
-    Key,
-    ACL: 'public-read'
-  }
-  const url = await getSignedUrl(getS3Client(), new GetObjectCommand(bucketParams), {
-    expiresIn: 5 * 60 // 5min
-  })
+  try {
+    // Generate a presigned URL for downloading from Storj
+    const bucketParams = {
+      Bucket,
+      Key,
+      // Remove ACL for Storj as it's not needed for GET operations
+      // ACL: 'public-read'
+    }
 
-  if (!url) {
-    error(400, `Couldn't get signed url. File no longer exist.`);
-  }
+    const client = getS3Client();
+    const command = new GetObjectCommand(bucketParams);
 
-  return json({ url })
+    // Increase expiration time for better user experience
+    const url = await getSignedUrl(client, command, {
+      expiresIn: 3600 // 1 hour
+    });
+
+    if (!url) {
+      error(400, `Couldn't get signed url. File may no longer exist.`);
+    }
+
+    console.log(`Generated download URL for ${Key} in bucket ${Bucket}`);
+    return json({ url });
+  } catch (err) {
+    console.error('Error generating download URL:', err);
+    error(500, `Failed to generate download URL: ${err.message}`);
+  }
 }
