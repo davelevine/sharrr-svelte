@@ -132,52 +132,76 @@ const uploadFileChunk = async ({
     const { url } = await presignedResponse.json();
     console.log('Got presigned URL for Storj upload');
 
-    // Upload directly to Storj using fetch for better error handling
-    const uploadResponse = await fetch(url, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/octet-stream'
-      },
-      body: chunk
+    // Use XMLHttpRequest for better progress tracking
+    await new Promise<void>((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+
+      // Set up progress tracking
+      xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable) {
+          const percentComplete = event.loaded / event.total;
+          progressCallback(percentComplete);
+        }
+      };
+
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          console.log('Direct upload to Storj successful!');
+          progressCallback(1);
+          resolve();
+        } else {
+          reject(new Error(`Upload failed with status ${xhr.status}: ${xhr.responseText}`));
+        }
+      };
+
+      xhr.onerror = () => reject(new Error('Network error during upload'));
+      xhr.onabort = () => reject(new Error('Upload aborted'));
+
+      xhr.open('PUT', url);
+      xhr.setRequestHeader('Content-Type', 'application/octet-stream');
+      xhr.send(chunk);
     });
 
-    if (!uploadResponse.ok) {
-      const errorText = await uploadResponse.text();
-      throw new Error(`Upload to Storj failed with status ${uploadResponse.status}: ${errorText}`);
-    }
-
-    console.log('Direct upload to Storj successful!');
-    progressCallback(1);
     return; // Success!
   } catch (directUploadError) {
     console.warn('Direct upload to Storj failed, falling back to proxy:', directUploadError);
   }
 
-  // Fall back to proxy upload
+  // Fall back to proxy upload with progress tracking
   try {
     console.log('Using proxy upload for file:', fileName);
 
-    // Convert chunk to base64 for JSON transport
-    const reader = new FileReader();
-    const chunkAsBase64 = await new Promise<string>((resolve) => {
-      reader.onload = () => resolve(
-        (reader.result as string).split(',')[1]
-      );
-      reader.readAsDataURL(chunk);
-    });
+    // Use FormData for more efficient upload and progress tracking
+    const formData = new FormData();
+    formData.append('file', new File([chunk], fileName, { type: 'application/octet-stream' }));
+    formData.append('bucket', bucket);
 
-    // Use server-side proxy
-    await api('/upload-proxy', {
-      method: 'POST'
-    }, {
-      key: fileName,
-      content: chunkAsBase64,
-      contentType: 'application/octet-stream',
-      bucket
-    });
+    await new Promise<void>((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
 
-    console.log('Proxy upload successful!');
-    progressCallback(1);
+      xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable) {
+          const percentComplete = event.loaded / event.total;
+          progressCallback(percentComplete);
+        }
+      };
+
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          console.log('Proxy upload successful!');
+          progressCallback(1);
+          resolve();
+        } else {
+          reject(new Error(`Proxy upload failed with status ${xhr.status}: ${xhr.responseText}`));
+        }
+      };
+
+      xhr.onerror = () => reject(new Error('Network error during proxy upload'));
+      xhr.onabort = () => reject(new Error('Proxy upload aborted'));
+
+      xhr.open('POST', '/api/v1/upload-proxy');
+      xhr.send(formData);
+    });
   } catch (proxyError) {
     console.error('Proxy upload failed:', proxyError);
     throw new Error(`Failed to upload file chunk through proxy: ${proxyError.message}`);
