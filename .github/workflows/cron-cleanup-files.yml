@@ -1,3 +1,4 @@
+
 name: Daily Cleanup
 on:
   schedule:
@@ -10,4 +11,6 @@ jobs:
         run: |
           curl --request POST \
           --url 'https://share.levine.io/api/v1/cron' \
-          --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}'
+          --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}' \
+          --header 'CF-Access-Client-Id: ${{ secrets.CF_ACCESS_CLIENT_ID }}' \
+          --header 'CF-Access-Client-Secret: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}'

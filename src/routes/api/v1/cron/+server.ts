@@ -12,8 +12,9 @@ const BucketName = PUBLIC_S3_BUCKET
 const client = getS3Client()
 
 function subtractDays(date: Date, days: number) {
-  date.setDate(date.getDate() - days)
-  return date
+  const newDate = new Date(date)
+  newDate.setDate(newDate.getDate() - days)
+  return newDate
 }
 
 type ObjectList = { Key: string }[]
@@ -23,6 +24,7 @@ export const POST: RequestHandler = async ({ request }) => {
   if (authorization === `Bearer ${API_SECRET_KEY}`) {
     // Delete files older than X days
     const deleteFilesBeforeDate = subtractDays(new Date(), fileRetentionPeriodInDays)
+    console.log(`Cron: Checking for files older than: ${deleteFilesBeforeDate.toISOString()}`)
 
     for await (const data of paginateListObjectsV2(
       { client, pageSize: 1000 },
@@ -35,11 +37,13 @@ export const POST: RequestHandler = async ({ request }) => {
       // Filter files by retention threshold date
       // Using "as ObjectList" b/c https://www.karltarvas.com/2021/03/11/typescript-array-filter-boolean.html
       const s3ObjectsToDelete = data.Contents.map(({ Key, LastModified }) => {
-        if (LastModified && LastModified < deleteFilesBeforeDate) {
+        if (LastModified && new Date(LastModified) < deleteFilesBeforeDate) {
           if (typeof Key === 'string') {
+            console.log(`Cron: Will delete file: ${Key}, LastModified: ${LastModified.toISOString()}`)
             return { Key }
           }
         }
+        return null
       }).filter(Boolean) as ObjectList
 
       if (s3ObjectsToDelete.length) {
