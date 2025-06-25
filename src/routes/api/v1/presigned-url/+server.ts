@@ -23,7 +23,7 @@ export const POST: RequestHandler = async ({ request }) => {
       Bucket: bucket,
       Key: key,
       ContentType: contentType,
-      // Storj supports standard S3 ACLs
+      // MinIO supports standard S3 ACLs
       ACL: 'public-read'
     });
 

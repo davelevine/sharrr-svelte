@@ -111,7 +111,7 @@ const uploadFileChunk = async ({
 
   // Try direct upload first
   try {
-    console.log('Attempting direct upload to Storj for file:', fileName);
+    console.log('Attempting direct upload to MinIO for file:', fileName);
 
     // Get presigned URL from your server
     const presignedResponse = await fetch('/api/v1/presigned-url', {
@@ -130,7 +130,7 @@ const uploadFileChunk = async ({
     }
 
     const { url } = await presignedResponse.json();
-    console.log('Got presigned URL for Storj upload');
+    console.log('Got presigned URL for MinIO upload');
 
     // Use XMLHttpRequest for better progress tracking
     await new Promise<void>((resolve, reject) => {
@@ -146,7 +146,7 @@ const uploadFileChunk = async ({
 
       xhr.onload = () => {
         if (xhr.status >= 200 && xhr.status < 300) {
-          console.log('Direct upload to Storj successful!');
+          console.log('Direct upload to MinIO successful!');
           progressCallback(1);
           resolve();
         } else {
@@ -164,7 +164,7 @@ const uploadFileChunk = async ({
 
     return; // Success!
   } catch (directUploadError) {
-    console.warn('Direct upload to Storj failed, falling back to proxy:', directUploadError);
+    console.warn('Direct upload to MinIO failed, falling back to proxy:', directUploadError);
   }
 
   // Fall back to proxy upload with progress tracking

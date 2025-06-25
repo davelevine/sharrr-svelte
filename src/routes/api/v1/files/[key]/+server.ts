@@ -39,11 +39,11 @@ export const POST = async ({ params, request }: RequestEvent) => {
   }
 
   try {
-    // Generate a presigned URL for downloading from Storj
+    // Generate a presigned URL for downloading from MinIO
     const bucketParams = {
       Bucket,
       Key,
-      // Remove ACL for Storj as it's not needed for GET operations
+      // Remove ACL for MinIO as it's not needed for GET operations
       // ACL: 'public-read'
     }
 

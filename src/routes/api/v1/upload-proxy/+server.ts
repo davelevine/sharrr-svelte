@@ -17,7 +17,7 @@ export const POST: RequestHandler = async ({ request }) => {
         return error(400, 'Missing required fields');
       }
 
-      // Upload to Storj
+      // Upload to MinIO
       const client = getS3Client();
       await client.send(
         new PutObjectCommand({
@@ -48,7 +48,7 @@ export const POST: RequestHandler = async ({ request }) => {
     // Decode base64 content
     const binaryContent = Buffer.from(content, 'base64');
 
-    // Upload to Storj
+    // Upload to MinIO
     const client = getS3Client();
     await client.send(
       new PutObjectCommand({
