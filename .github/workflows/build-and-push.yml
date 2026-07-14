@@ -1,0 +1,94 @@
+name: Build and Push Docker Image
+
+on:
+  # Validate the image builds on every PR that touches it (build only, no push).
+  pull_request:
+    branches: [main]
+    paths:
+      - 'Dockerfile'
+      - '.dockerignore'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - 'svelte.config.js'
+      - 'vite.config.ts'
+      - 'src/**'
+      - 'static/**'
+      - 'prisma/**'
+      - '.github/workflows/build-and-push.yml'
+  # Publish on version tags.
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+concurrency:
+  group: docker-build-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Log in to Container Registry
+        # Only needed when we actually push (tags / manual dispatch).
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels)
+        id: meta
+        uses: docker/metadata-action@v6
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,format=short
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Docker image
+        id: push
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          platforms: linux/amd64
+          # Push everywhere except PRs, which build for validation only.
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          # PUBLIC_* config is inlined into the bundle at build time
+          # ($env/static/public). All non-secret, sourced from repo variables. Set
+          # them before tagging a release:
+          #   gh variable set PUBLIC_S3_REGION --body '<s3 region>'
+          #   gh variable set PUBLIC_S3_BUCKET --body '<s3 bucket>'
+          build-args: |
+            PUBLIC_ENV=production
+            PUBLIC_S3_REGION=${{ vars.PUBLIC_S3_REGION }}
+            PUBLIC_S3_BUCKET=${{ vars.PUBLIC_S3_BUCKET }}
+          # Registry cache persists longer than GHA cache and has no 10GB cap.
+          # Only written on push (a PR build has read-only cache access).
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache
+          cache-to: ${{ github.event_name != 'pull_request' && format('type=registry,ref={0}/{1}:buildcache,mode=max', env.REGISTRY, env.IMAGE_NAME) || '' }}
+
+      - name: Output image digest
+        if: github.event_name != 'pull_request'
+        run: echo "Pushed image with digest ${{ steps.push.outputs.digest }}"

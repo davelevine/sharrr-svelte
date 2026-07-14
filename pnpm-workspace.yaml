@@ -1,0 +1,10 @@
+# pnpm 10+ no longer runs dependency build scripts unless explicitly allowed.
+# These need their scripts: Prisma downloads/generates its query engine, esbuild
+# unpacks its native binary, and svelte-preprocess builds. Without this the Docker
+# build produces a client with no engine and vite has no esbuild binary.
+allowBuilds:
+  '@prisma/client': true
+  '@prisma/engines': true
+  esbuild: true
+  prisma: true
+  svelte-preprocess: true

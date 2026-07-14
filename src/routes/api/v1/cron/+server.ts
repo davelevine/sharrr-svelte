@@ -2,7 +2,7 @@ import { DeleteObjectsCommand, paginateListObjectsV2 } from '@aws-sdk/client-s3'
 import { error, json } from '@sveltejs/kit'
 import type { RequestHandler } from '@sveltejs/kit'
 
-import { API_SECRET_KEY } from '$env/static/private'
+import { env } from '$env/dynamic/private'
 import { PUBLIC_S3_BUCKET } from '$env/static/public'
 import { getS3Client } from '$lib/s3'
 import { fileRetentionPeriodInDays } from '$lib/constants'
@@ -20,7 +20,7 @@ type ObjectList = { Key: string }[]
 export const POST: RequestHandler = async ({ request }) => {
   const authorization = request.headers.get('authorization')
 
-  if (authorization === `Bearer ${API_SECRET_KEY}`) {
+  if (env.API_SECRET_KEY && authorization === `Bearer ${env.API_SECRET_KEY}`) {
     // Delete files older than X days
     const deleteFilesBeforeDate = subtractDays(new Date(), fileRetentionPeriodInDays)
 
